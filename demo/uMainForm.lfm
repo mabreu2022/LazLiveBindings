@@ -1,0 +1,549 @@
+object MainForm: TMainForm
+  Left = 300
+  Height = 600
+  Top = 140
+  Width = 860
+  Caption = 'LiveBindings para Lazarus / Free Pascal - Demonstração Completa'
+  ClientHeight = 600
+  ClientWidth = 860
+  Position = poScreenCenter
+  LCLVersion = '2.2.0.0'
+  OnCreate = FormCreate
+  object BindingManager1: TBindingManager
+    AutoSyncOnLoaded = True
+    Active = True
+    Left = 780
+    Top = 16
+  end
+  object pnlHeader: TPanel
+    Left = 0
+    Height = 64
+    Top = 0
+    Width = 860
+    Align = alTop
+    BevelOuter = bvNone
+    ClientHeight = 64
+    ClientWidth = 860
+    Color = clWhite
+    ParentColor = False
+    TabOrder = 0
+    object lblTitle: TLabel
+      Left = 16
+      Height = 25
+      Top = 10
+      Width = 430
+      Caption = 'LiveBindings Visual com Binding Expressions'
+      Font.Height = -19
+      Font.Style = [fsBold]
+      ParentColor = False
+      ParentFont = False
+    end
+    object lblSubtitle: TLabel
+      Left = 16
+      Height = 15
+      Top = 38
+      Width = 530
+      Caption = 'Free Pascal & Lazarus LCL • RTTI Estendida • Motor de Expressões fpexprpars • Sincronização em Tempo Real'
+      Font.Color = clGray
+      ParentColor = False
+      ParentFont = False
+    end
+  end
+  object pcDemo: TPageControl
+    Left = 8
+    Height = 520
+    Top = 72
+    Width = 844
+    ActivePage = tsDirectBindings
+    Align = alClient
+    BorderSpacing.Around = 8
+    TabIndex = 0
+    TabOrder = 1
+    object tsDirectBindings: TTabSheet
+      Caption = '🔗 Vínculos Diretos (Direct Property)'
+      ClientHeight = 492
+      ClientWidth = 836
+      object gbDirect1: TGroupBox
+        Left = 12
+        Height = 100
+        Top = 12
+        Width = 812
+        Align = alTop
+        BorderSpacing.Around = 12
+        Caption = ' 1. Vínculo de Texto (TEdit.Text -> TLabel.Caption) '
+        ClientHeight = 80
+        ClientWidth = 808
+        TabOrder = 0
+        object lblPromptNome: TLabel
+          Left = 12
+          Height = 15
+          Top = 12
+          Width = 155
+          Caption = 'Digite seu nome ou texto:'
+          ParentColor = False
+        end
+        object edtNome: TEdit
+          Left = 12
+          Height = 23
+          Top = 36
+          Width = 280
+          OnChange = ControlChangeTrigger
+          TabOrder = 0
+          Text = 'Antigravity LiveBindings'
+        end
+        object lblDirectResultLabel: TLabel
+          Left = 320
+          Height = 15
+          Top = 12
+          Width = 145
+          Caption = 'Resultado vinculado (Live):'
+          Font.Style = [fsBold]
+          ParentColor = False
+          ParentFont = False
+        end
+        object lblNomeOutput: TLabel
+          Left = 320
+          Height = 25
+          Top = 34
+          Width = 460
+          AutoSize = False
+          Caption = '(aguardando sincronização...)'
+          Font.Color = clNavy
+          Font.Height = -16
+          Font.Style = [fsBold]
+          ParentColor = False
+          ParentFont = False
+        end
+      end
+      object gbDirect2: TGroupBox
+        Left = 12
+        Height = 110
+        Top = 124
+        Width = 812
+        Align = alTop
+        BorderSpacing.Around = 12
+        Caption = ' 2. Vínculo Numérico e Barra de Progresso (TrackBar.Position -> ProgressBar & Label) '
+        ClientHeight = 90
+        ClientWidth = 808
+        TabOrder = 1
+        object lblPromptSlider: TLabel
+          Left = 12
+          Height = 15
+          Top = 10
+          Width = 190
+          Caption = 'Mova o controle deslizante (0-100):'
+          ParentColor = False
+        end
+        object tbVolume: TTrackBar
+          Left = 12
+          Height = 35
+          Top = 34
+          Width = 280
+          Max = 100
+          Position = 65
+          OnChange = ControlChangeTrigger
+          TabOrder = 0
+        end
+        object pbVolume: TProgressBar
+          Left = 320
+          Height = 26
+          Top = 38
+          Width = 350
+          TabOrder = 1
+        end
+        object lblVolumeVal: TLabel
+          Left = 685
+          Height = 25
+          Top = 38
+          Width = 80
+          Caption = '65%'
+          Font.Color = clGreen
+          Font.Height = -16
+          Font.Style = [fsBold]
+          ParentColor = False
+          ParentFont = False
+        end
+      end
+      object gbDirect3: TGroupBox
+        Left = 12
+        Height = 100
+        Top = 246
+        Width = 812
+        Align = alTop
+        BorderSpacing.Around = 12
+        Caption = ' 3. Vínculo Booleano (TCheckBox.Checked -> TButton.Enabled) '
+        ClientHeight = 80
+        ClientWidth = 808
+        TabOrder = 2
+        object chkEnableButton: TCheckBox
+          Left = 16
+          Height = 23
+          Top = 24
+          Width = 250
+          Caption = 'Habilitar Botão de Ação Crítica'
+          Checked = True
+          OnChange = ControlChangeTrigger
+          State = cbChecked
+          TabOrder = 0
+        end
+        object btnActionTarget: TButton
+          Left = 320
+          Height = 36
+          Top = 18
+          Width = 220
+          Caption = 'Ação Crítica Habilitada'
+          TabOrder = 1
+        end
+      end
+    end
+    object tsExpressionBindings: TTabSheet
+      Caption = '⚡ Expressões Dinâmicas (fpexprpars)'
+      ClientHeight = 492
+      ClientWidth = 836
+      object gbMathExpr: TGroupBox
+        Left = 12
+        Height = 140
+        Top = 12
+        Width = 812
+        Align = alTop
+        BorderSpacing.Around = 12
+        Caption = ' 1. Cálculo Matemático Inline ("Value * seQtd_Value" e com 15% de imposto) '
+        ClientHeight = 120
+        ClientWidth = 808
+        TabOrder = 0
+        object lblPromptPreco: TLabel
+          Left = 16
+          Height = 15
+          Top = 10
+          Width = 75
+          Caption = 'Preço Unitário:'
+          ParentColor = False
+        end
+        object sePreco: TFloatSpinEdit
+          Left = 16
+          Height = 23
+          Top = 32
+          Width = 120
+          DecimalPlaces = 2
+          Increment = 5
+          MaxValue = 100000
+          MinValue = 0
+          OnChange = ControlChangeTrigger
+          TabOrder = 0
+          Value = 49.9
+        end
+        object lblPromptQtd: TLabel
+          Left = 160
+          Height = 15
+          Top = 10
+          Width = 65
+          Caption = 'Quantidade:'
+          ParentColor = False
+        end
+        object seQtd: TSpinEdit
+          Left = 160
+          Height = 23
+          Top = 32
+          Width = 100
+          MaxValue = 1000
+          MinValue = 1
+          OnChange = ControlChangeTrigger
+          TabOrder = 1
+          Value = 3
+        end
+        object lblSubtotalTitle: TLabel
+          Left = 300
+          Height = 15
+          Top = 10
+          Width = 95
+          Caption = 'Subtotal (Qtd*P):'
+          Font.Style = [fsBold]
+          ParentColor = False
+          ParentFont = False
+        end
+        object lblSubtotal: TLabel
+          Left = 300
+          Height = 25
+          Top = 32
+          Width = 140
+          Caption = 'R$ 0,00'
+          Font.Color = clBlue
+          Font.Height = -16
+          Font.Style = [fsBold]
+          ParentColor = False
+          ParentFont = False
+        end
+        object lblTotalTaxTitle: TLabel
+          Left = 470
+          Height = 15
+          Top = 10
+          Width = 145
+          Caption = 'Total c/ 15% Impostos:'
+          Font.Style = [fsBold]
+          ParentColor = False
+          ParentFont = False
+        end
+        object lblTotalWithTax: TLabel
+          Left = 470
+          Height = 25
+          Top = 32
+          Width = 160
+          Caption = 'R$ 0,00'
+          Font.Color = clGreen
+          Font.Height = -16
+          Font.Style = [fsBold]
+          ParentColor = False
+          ParentFont = False
+        end
+        object lblMathFormula: TLabel
+          Left = 16
+          Height = 15
+          Top = 75
+          Width = 650
+          Caption = 'Expressões avaliadas: "Value * seQtd_Value" e "Value * seQtd_Value * 1.15" com máscara "R$ #,##0.00"'
+          Font.Color = clGray
+          ParentColor = False
+          ParentFont = False
+        end
+      end
+      object gbStringExpr: TGroupBox
+        Left = 12
+        Height = 120
+        Top = 164
+        Width = 812
+        Align = alTop
+        BorderSpacing.Around = 12
+        Caption = ' 2. Funções de Texto Inline ("Upper(Text)" e "Trim(Text)") '
+        ClientHeight = 100
+        ClientWidth = 808
+        TabOrder = 1
+        object lblPromptTexto: TLabel
+          Left = 16
+          Height = 15
+          Top = 10
+          Width = 135
+          Caption = 'Texto com formatação:'
+          ParentColor = False
+        end
+        object edtTextoOriginal: TEdit
+          Left = 16
+          Height = 23
+          Top = 32
+          Width = 240
+          OnChange = ControlChangeTrigger
+          TabOrder = 0
+          Text = '  engenharia de software  '
+        end
+        object lblUpperTitle: TLabel
+          Left = 280
+          Height = 15
+          Top = 10
+          Width = 100
+          Caption = 'Upper(Text):'
+          Font.Style = [fsBold]
+          ParentColor = False
+          ParentFont = False
+        end
+        object lblUpperResult: TLabel
+          Left = 280
+          Height = 20
+          Top = 34
+          Width = 240
+          Caption = '---'
+          Font.Color = clNavy
+          Font.Height = -13
+          Font.Style = [fsBold]
+          ParentColor = False
+          ParentFont = False
+        end
+        object lblTrimTitle: TLabel
+          Left = 540
+          Height = 15
+          Top = 10
+          Width = 90
+          Caption = 'Trim(Text):'
+          Font.Style = [fsBold]
+          ParentColor = False
+          ParentFont = False
+        end
+        object lblTrimResult: TLabel
+          Left = 540
+          Height = 20
+          Top = 34
+          Width = 240
+          Caption = '---'
+          Font.Color = clMaroon
+          Font.Height = -13
+          Font.Style = [fsBold]
+          ParentColor = False
+          ParentFont = False
+        end
+      end
+      object gbConditionalExpr: TGroupBox
+        Left = 12
+        Height = 100
+        Top = 296
+        Width = 812
+        Align = alTop
+        BorderSpacing.Around = 12
+        Caption = ' 3. Expressão Condicional Inline ("If(Checked, ... , ...)") '
+        ClientHeight = 80
+        ClientWidth = 808
+        TabOrder = 2
+        object chkVip: TCheckBox
+          Left = 16
+          Height = 23
+          Top = 18
+          Width = 200
+          Caption = 'Marcar como Cliente VIP'
+          Checked = True
+          OnChange = ControlChangeTrigger
+          State = cbChecked
+          TabOrder = 0
+        end
+        object lblConditionalResult: TLabel
+          Left = 250
+          Height = 25
+          Top = 16
+          Width = 530
+          AutoSize = False
+          Caption = 'Status'
+          Font.Color = clTeal
+          Font.Height = -14
+          Font.Style = [fsBold]
+          ParentColor = False
+          ParentFont = False
+        end
+      end
+    end
+    object tsManagerMonitor: TTabSheet
+      Caption = '📊 Monitor & Gerenciador de Vínculos'
+      ClientHeight = 492
+      ClientWidth = 836
+      object pnlMonitorToolbar: TPanel
+        Left = 0
+        Height = 44
+        Top = 0
+        Width = 836
+        Align = alTop
+        BevelOuter = bvNone
+        ClientHeight = 44
+        ClientWidth = 836
+        TabOrder = 0
+        object btnSyncAll: TBitBtn
+          Left = 8
+          Height = 32
+          Top = 6
+          Width = 140
+          Caption = '🔄 Sincronizar Tudo'
+          OnClick = btnSyncAllClick
+          TabOrder = 0
+        end
+        object btnToggleManagerActive: TBitBtn
+          Left = 156
+          Height = 32
+          Top = 6
+          Width = 160
+          Caption = 'Pausar LiveBindings'
+          OnClick = btnToggleManagerActiveClick
+          TabOrder = 1
+        end
+        object btnAddRuntimeLink: TBitBtn
+          Left = 324
+          Height = 32
+          Top = 6
+          Width = 220
+          Caption = '⚡ Novo Vínculo em Runtime'
+          OnClick = btnAddRuntimeLinkClick
+          TabOrder = 2
+        end
+        object btnClearLog: TBitBtn
+          Left = 552
+          Height = 32
+          Top = 6
+          Width = 100
+          Caption = 'Limpar Log'
+          OnClick = btnClearLogClick
+          TabOrder = 3
+        end
+      end
+      object gbGrid: TGroupBox
+        Left = 6
+        Height = 240
+        Top = 50
+        Width = 824
+        Align = alTop
+        BorderSpacing.Around = 6
+        Caption = ' Vínculos Ativos no TBindingManager '
+        ClientHeight = 220
+        ClientWidth = 820
+        TabOrder = 1
+        object sgActiveLinks: TStringGrid
+          Left = 6
+          Height = 208
+          Top = 6
+          Width = 808
+          Align = alClient
+          BorderSpacing.Around = 6
+          ColCount = 7
+          Columns = <          
+            item
+              Title.Caption = 'Ativo'
+              Width = 45
+            end          
+            item
+              Title.Caption = 'Origem'
+              Width = 120
+            end          
+            item
+              Title.Caption = 'Propriedade / Expressão'
+              Width = 240
+            end          
+            item
+              Title.Caption = 'Destino'
+              Width = 120
+            end          
+            item
+              Title.Caption = 'Propriedade Alvo'
+              Width = 120
+            end          
+            item
+              Title.Caption = 'Modo'
+              Width = 80
+            end>
+          DefaultColWidth = 50
+          FixedCols = 1
+          Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRowSelect, goSmoothScroll]
+          RowCount = 1
+          TabOrder = 0
+        end
+      end
+      object gbLog: TGroupBox
+        Left = 6
+        Height = 180
+        Top = 296
+        Width = 824
+        Align = alClient
+        BorderSpacing.Around = 6
+        Caption = ' Log de Eventos de Sincronização (OnBeforeSync, OnAfterSync, OnBindingError) '
+        ClientHeight = 160
+        ClientWidth = 820
+        TabOrder = 2
+        object mmoLog: TMemo
+          Left = 6
+          Height = 148
+          Top = 6
+          Width = 808
+          Align = alClient
+          BorderSpacing.Around = 6
+          Font.Height = -11
+          Font.Name = 'Courier New'
+          ParentFont = False
+          ReadOnly = True
+          ScrollBars = ssAutoBoth
+          TabOrder = 0
+        end
+      end
+    end
+  end
+end

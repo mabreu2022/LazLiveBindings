@@ -1,0 +1,270 @@
+object BindingExpressionDialog: TBindingExpressionDialog
+  Left = 400
+  Height = 540
+  Top = 180
+  Width = 740
+  Caption = 'Construtor de Expressões LiveBindings'
+  ClientHeight = 540
+  ClientWidth = 740
+  Position = poScreenCenter
+  LCLVersion = '2.2.0.0'
+  OnCreate = FormCreate
+  object pnlTop: TPanel
+    Left = 0
+    Height = 130
+    Top = 0
+    Width = 740
+    Align = alTop
+    BevelOuter = bvNone
+    ClientHeight = 130
+    ClientWidth = 740
+    TabOrder = 0
+    object gbExpression: TGroupBox
+      Left = 8
+      Height = 118
+      Top = 6
+      Width = 724
+      Align = alClient
+      BorderSpacing.Around = 6
+      Caption = ' Expressão de Vínculo (SourceExpression) '
+      ClientHeight = 98
+      ClientWidth = 720
+      Font.Style = [fsBold]
+      ParentFont = False
+      TabOrder = 0
+      object mmoExpression: TMemo
+        Left = 6
+        Height = 86
+        Top = 6
+        Width = 708
+        Align = alClient
+        BorderSpacing.Around = 6
+        Font.Height = -13
+        Font.Name = 'Courier New'
+        ParentFont = False
+        ScrollBars = ssAutoBoth
+        TabOrder = 0
+      end
+    end
+  end
+  object pnlCenter: TPanel
+    Left = 0
+    Height = 310
+    Top = 130
+    Width = 740
+    Align = alClient
+    BevelOuter = bvNone
+    ClientHeight = 310
+    ClientWidth = 740
+    TabOrder = 1
+    object pnlLeft: TPanel
+      Left = 0
+      Height = 310
+      Top = 0
+      Width = 360
+      Align = alLeft
+      BevelOuter = bvNone
+      ClientHeight = 310
+      ClientWidth = 360
+      TabOrder = 0
+      object gbProperties: TGroupBox
+        Left = 6
+        Height = 298
+        Top = 6
+        Width = 348
+        Align = alClient
+        BorderSpacing.Around = 6
+        Caption = ' Propriedades Disponíveis (Origem) '
+        ClientHeight = 278
+        ClientWidth = 344
+        TabOrder = 0
+        object edtFilterProp: TEdit
+          Left = 6
+          Height = 25
+          Top = 6
+          Width = 332
+          Align = alTop
+          BorderSpacing.Around = 6
+          OnChange = edtFilterPropChange
+          TabOrder = 0
+          TextHint = 'Filtrar propriedades...'
+        end
+        object lbProperties: TListBox
+          Left = 6
+          Height = 235
+          Top = 37
+          Width = 332
+          Align = alClient
+          BorderSpacing.Around = 6
+          ItemHeight = 0
+          OnDblClick = lbPropertiesDblClick
+          TabOrder = 1
+        end
+      end
+    end
+    object splitterH: TSplitter
+      Left = 360
+      Height = 310
+      Top = 0
+      Width = 6
+    end
+    object pnlRight: TPanel
+      Left = 366
+      Height = 310
+      Top = 0
+      Width = 374
+      Align = alClient
+      BevelOuter = bvNone
+      ClientHeight = 310
+      ClientWidth = 374
+      TabOrder = 2
+      object gbFunctions: TGroupBox
+        Left = 6
+        Height = 298
+        Top = 6
+        Width = 362
+        Align = alClient
+        BorderSpacing.Around = 6
+        Caption = ' Funções e Operadores (fpexprpars) '
+        ClientHeight = 278
+        ClientWidth = 358
+        TabOrder = 0
+        object cbCategory: TComboBox
+          Left = 6
+          Height = 25
+          Top = 6
+          Width = 346
+          Align = alTop
+          BorderSpacing.Around = 6
+          ItemHeight = 17
+          ItemIndex = 0
+          Items.Strings = (
+            'Todas'
+            'Matemática'
+            'Texto (Strings)'
+            'Lógica / Condicional'
+            'Data e Hora'
+            'Conversão'
+            'Operadores'
+          )
+          OnChange = cbCategoryChange
+          Style = csDropDownList
+          TabOrder = 0
+          Text = 'Todas'
+        end
+        object lbFunctions: TListBox
+          Left = 6
+          Height = 195
+          Top = 37
+          Width = 346
+          Align = alClient
+          BorderSpacing.Around = 6
+          ItemHeight = 0
+          OnClick = lbFunctionsClick
+          OnDblClick = lbFunctionsDblClick
+          TabOrder = 1
+        end
+        object lblFuncDesc: TLabel
+          Left = 6
+          Height = 28
+          Top = 238
+          Width = 346
+          Align = alBottom
+          AutoSize = False
+          BorderSpacing.Around = 6
+          Caption = 'Dê duplo clique para inserir na expressão.'
+          Font.Color = clNavy
+          Font.Height = -11
+          ParentColor = False
+          ParentFont = False
+          WordWrap = True
+        end
+      end
+    end
+  end
+  object pnlBottom: TPanel
+    Left = 0
+    Height = 100
+    Top = 440
+    Width = 740
+    Align = alBottom
+    BevelOuter = bvNone
+    ClientHeight = 100
+    ClientWidth = 740
+    TabOrder = 2
+    object pnlTest: TPanel
+      Left = 6
+      Height = 44
+      Top = 4
+      Width = 728
+      Align = alTop
+      BorderSpacing.Around = 4
+      BevelOuter = bvLowered
+      ClientHeight = 44
+      ClientWidth = 728
+      TabOrder = 0
+      object btnTest: TBitBtn
+        Left = 8
+        Height = 32
+        Top = 6
+        Width = 160
+        Caption = '⚡ Testar Expressão'
+        Font.Style = [fsBold]
+        OnClick = btnTestClick
+        ParentFont = False
+        TabOrder = 0
+      end
+      object lblResult: TLabel
+        Left = 176
+        Height = 32
+        Top = 6
+        Width = 540
+        Align = alRight
+        Anchors = [akTop, akLeft, akRight, akBottom]
+        AutoSize = False
+        Caption = 'Clique em Testar Expressão para validar sintaxe.'
+        Font.Color = clGray
+        Font.Height = -12
+        Font.Style = [fsBold]
+        Layout = tlCenter
+        ParentColor = False
+        ParentFont = False
+      end
+    end
+    object pnlButtons: TPanel
+      Left = 0
+      Height = 48
+      Top = 52
+      Width = 740
+      Align = alBottom
+      BevelOuter = bvNone
+      ClientHeight = 48
+      ClientWidth = 740
+      TabOrder = 1
+      object btnOK: TBitBtn
+        Left = 520
+        Height = 34
+        Top = 6
+        Width = 100
+        Anchors = [akTop, akRight]
+        Caption = 'OK'
+        Default = True
+        Kind = bkOK
+        ModalResult = 1
+        TabOrder = 0
+      end
+      object btnCancel: TBitBtn
+        Left = 628
+        Height = 34
+        Top = 6
+        Width = 100
+        Anchors = [akTop, akRight]
+        Cancel = True
+        Caption = 'Cancelar'
+        Kind = bkCancel
+        ModalResult = 2
+        TabOrder = 1
+      end
+    end
+  end
+end

@@ -1,0 +1,1486 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LiveBindings para Lazarus & Free Pascal - Manual Oficial e Referência Técnica</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    /* ==========================================================================
+       CSS VARIABLES & THEME SYSTEM
+       ========================================================================== */
+    :root {
+      --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-heading: 'Plus Jakarta Sans', sans-serif;
+      --font-code: 'JetBrains Mono', Consolas, monospace;
+
+      --bg-canvas: #f8fafc;
+      --bg-surface: #ffffff;
+      --bg-sidebar: #0f172a;
+      --bg-code: #1e293b;
+      --bg-subtle: #f1f5f9;
+
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --text-light: #94a3b8;
+      --text-inverse: #ffffff;
+
+      --primary: #4f46e5;
+      --primary-hover: #4338ca;
+      --primary-light: #eef2ff;
+      --accent: #06b6d4;
+      --success: #10b981;
+      --success-light: #ecfdf5;
+      --warning: #f59e0b;
+      --warning-light: #fffbeb;
+      --danger: #ef4444;
+      --border-color: #e2e8f0;
+
+      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+
+      --sidebar-width: 290px;
+      --content-max-width: 1060px;
+    }
+
+    [data-theme="dark"] {
+      --bg-canvas: #090d16;
+      --bg-surface: #111827;
+      --bg-sidebar: #030712;
+      --bg-code: #030712;
+      --bg-subtle: #1f2937;
+
+      --text-main: #f3f4f6;
+      --text-muted: #9ca3af;
+      --text-light: #6b7280;
+
+      --border-color: #374151;
+      --primary-light: rgba(79, 70, 229, 0.15);
+      --success-light: rgba(16, 185, 129, 0.15);
+      --warning-light: rgba(245, 158, 11, 0.15);
+    }
+
+    /* ==========================================================================
+       BASE STYLES & RESET
+       ========================================================================== */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      font-size: 16px;
+    }
+
+    body {
+      font-family: var(--font-body);
+      color: var(--text-main);
+      background-color: var(--bg-canvas);
+      line-height: 1.65;
+      display: flex;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ==========================================================================
+       SIDEBAR NAVIGATION
+       ========================================================================== */
+    #sidebar {
+      width: var(--sidebar-width);
+      background-color: var(--bg-sidebar);
+      color: var(--text-inverse);
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      transition: transform 0.3s ease;
+      box-shadow: var(--shadow-md);
+    }
+
+    .sidebar-header {
+      padding: 24px 20px 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .brand-title {
+      font-family: var(--font-heading);
+      font-size: 1.25rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, #a5b4fc, #38bdf8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-badge {
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 9999px;
+      background: rgba(99, 102, 241, 0.3);
+      color: #818cf8;
+      border: 1px solid rgba(99, 102, 241, 0.4);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .sidebar-search {
+      padding: 14px 20px 8px;
+    }
+
+    .search-input {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 8px;
+      padding: 8px 12px;
+      color: #ffffff;
+      font-size: 0.85rem;
+      font-family: var(--font-body);
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    .search-input:focus {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: #6366f1;
+      box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      padding: 16px 12px;
+      overflow-y: auto;
+    }
+
+    .nav-group-title {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      color: #64748b;
+      padding: 12px 12px 6px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 12px;
+      border-radius: 6px;
+      color: #cbd5e1;
+      text-decoration: none;
+      font-size: 0.88rem;
+      font-weight: 500;
+      transition: all 0.15s;
+    }
+
+    .nav-item:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: #ffffff;
+      transform: translateX(3px);
+    }
+
+    .nav-item.active {
+      background: var(--primary);
+      color: #ffffff;
+      font-weight: 600;
+    }
+
+    .sidebar-footer {
+      padding: 16px 20px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      font-size: 0.75rem;
+      color: #64748b;
+    }
+
+    /* ==========================================================================
+       MAIN CONTENT WRAPPER
+       ========================================================================== */
+    #main {
+      margin-left: var(--sidebar-width);
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    /* Top Sticky Action Bar */
+    .top-bar {
+      position: sticky;
+      top: 0;
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-color);
+      z-index: 50;
+      padding: 12px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    [data-theme="dark"] .top-bar {
+      background: rgba(17, 24, 39, 0.85);
+    }
+
+    .bar-breadcrumbs {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .bar-breadcrumbs strong {
+      color: var(--text-main);
+    }
+
+    .bar-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--font-body);
+      font-size: 0.875rem;
+      font-weight: 600;
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.2s ease;
+      text-decoration: none;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #ffffff;
+      box-shadow: 0 1px 3px rgba(79, 70, 229, 0.3);
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-hover);
+      box-shadow: 0 4px 10px rgba(79, 70, 229, 0.4);
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background: var(--bg-surface);
+      color: var(--text-main);
+      border-color: var(--border-color);
+    }
+
+    .btn-secondary:hover {
+      background: var(--bg-subtle);
+    }
+
+    /* Content Container */
+    .content-area {
+      max-width: var(--content-max-width);
+      width: 100%;
+      margin: 0 auto;
+      padding: 40px 48px 80px;
+    }
+
+    /* Cover / Hero Header */
+    .doc-hero {
+      padding: 48px 40px;
+      background: linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%);
+      color: #ffffff;
+      border-radius: 16px;
+      margin-bottom: 48px;
+      box-shadow: var(--shadow-lg);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .doc-hero::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -20%;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.25) 0%, transparent 70%);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    .doc-hero h1 {
+      font-family: var(--font-heading);
+      font-size: 2.5rem;
+      font-weight: 800;
+      line-height: 1.15;
+      margin-bottom: 16px;
+      letter-spacing: -0.03em;
+    }
+
+    .doc-hero p.lead {
+      font-size: 1.15rem;
+      color: #cbd5e1;
+      max-width: 780px;
+      margin-bottom: 24px;
+    }
+
+    .meta-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .pill {
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 4px 12px;
+      border-radius: 9999px;
+      background: rgba(255, 255, 255, 0.12);
+      color: #e2e8f0;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .pill-green {
+      background: rgba(16, 185, 129, 0.2);
+      color: #6ee7b7;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    /* Typography & Sections */
+    h2 {
+      font-family: var(--font-heading);
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--text-main);
+      margin: 48px 0 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid var(--border-color);
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    h3 {
+      font-family: var(--font-heading);
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text-main);
+      margin: 28px 0 12px;
+      letter-spacing: -0.01em;
+    }
+
+    h4 {
+      font-size: 1.05rem;
+      font-weight: 600;
+      margin: 20px 0 8px;
+    }
+
+    p {
+      margin-bottom: 16px;
+      color: var(--text-main);
+    }
+
+    ul, ol {
+      margin: 0 0 20px 24px;
+      color: var(--text-main);
+    }
+
+    li {
+      margin-bottom: 6px;
+    }
+
+    strong {
+      color: var(--text-main);
+    }
+
+    /* Callout Boxes */
+    .callout {
+      padding: 16px 20px;
+      border-radius: 10px;
+      margin: 24px 0;
+      border-left: 4px solid;
+      background: var(--bg-surface);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .callout-info {
+      border-color: var(--primary);
+      background-color: var(--primary-light);
+    }
+
+    .callout-success {
+      border-color: var(--success);
+      background-color: var(--success-light);
+    }
+
+    .callout-warning {
+      border-color: var(--warning);
+      background-color: var(--warning-light);
+    }
+
+    .callout-title {
+      font-weight: 700;
+      margin-bottom: 6px;
+      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Tables */
+    .table-container {
+      width: 100%;
+      overflow-x: auto;
+      margin: 24px 0;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+      text-align: left;
+    }
+
+    th {
+      background: var(--bg-subtle);
+      color: var(--text-main);
+      font-weight: 700;
+      padding: 12px 16px;
+      border-bottom: 2px solid var(--border-color);
+      font-family: var(--font-heading);
+    }
+
+    td {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border-color);
+      color: var(--text-main);
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr:hover td {
+      background-color: rgba(79, 70, 229, 0.02);
+    }
+
+    /* Code Blocks & Inline Code */
+    code {
+      font-family: var(--font-code);
+      font-size: 0.88em;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background-color: var(--bg-subtle);
+      color: #db2777;
+    }
+
+    [data-theme="dark"] code {
+      color: #f472b6;
+    }
+
+    pre {
+      background-color: var(--bg-code);
+      color: #e2e8f0;
+      font-family: var(--font-code);
+      font-size: 0.88rem;
+      padding: 20px;
+      border-radius: 10px;
+      overflow-x: auto;
+      margin: 20px 0;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: var(--shadow-md);
+      line-height: 1.5;
+    }
+
+    pre code {
+      background: transparent !important;
+      padding: 0;
+      color: inherit;
+      font-size: inherit;
+    }
+
+    /* Syntax Highlighting Tokens */
+    .kw { color: #c084fc; font-weight: 600; }  /* Keyword */
+    .fn { color: #38bdf8; }                   /* Function */
+    .str { color: #34d399; }                  /* String */
+    .num { color: #fbbf24; }                  /* Number */
+    .cmt { color: #64748b; font-style: italic; } /* Comment */
+    .typ { color: #f472b6; }                  /* Type */
+
+    /* Feature Grid */
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      margin: 24px 0;
+    }
+
+    .feature-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: var(--shadow-sm);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+      border-color: #a5b4fc;
+    }
+
+    .feature-icon {
+      font-size: 1.8rem;
+      margin-bottom: 12px;
+      display: inline-block;
+    }
+
+    .feature-title {
+      font-family: var(--font-heading);
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: var(--text-main);
+    }
+
+    .feature-desc {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    /* Footer */
+    .doc-footer {
+      margin-top: 80px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border-color);
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    /* ==========================================================================
+       PRINT & PDF EXPORT OPTIMIZATIONS
+       ========================================================================== */
+    @media print {
+      @page {
+        size: A4;
+        margin: 15mm 15mm 15mm 15mm;
+      }
+
+      body {
+        background: #ffffff !important;
+        color: #000000 !important;
+        font-size: 10.5pt;
+        display: block;
+      }
+
+      /* Hide interactive UI elements */
+      #sidebar, .top-bar, .search-container, .btn, .sidebar-toggle, .hide-print {
+        display: none !important;
+      }
+
+      #main {
+        margin-left: 0 !important;
+      }
+
+      .content-area {
+        max-width: 100% !important;
+        padding: 0 !important;
+      }
+
+      /* Printable Cover Page */
+      .doc-hero {
+        background: #ffffff !important;
+        color: #000000 !important;
+        border: 2px solid #0f172a;
+        box-shadow: none !important;
+        padding: 40px !important;
+        page-break-after: always;
+        height: 85vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+      }
+
+      .doc-hero h1 {
+        font-size: 32pt !important;
+        color: #0f172a !important;
+      }
+
+      .doc-hero p.lead {
+        font-size: 14pt !important;
+        color: #334155 !important;
+      }
+
+      .pill {
+        border: 1px solid #64748b !important;
+        color: #000000 !important;
+        background: transparent !important;
+      }
+
+      h2 {
+        page-break-before: always;
+        border-bottom: 1.5pt solid #0f172a !important;
+        color: #0f172a !important;
+        margin-top: 0;
+        padding-top: 10pt;
+      }
+
+      h3, h4 {
+        page-break-after: avoid;
+        color: #0f172a !important;
+      }
+
+      pre, .table-container, .callout, .feature-card {
+        page-break-inside: avoid !important;
+        box-shadow: none !important;
+      }
+
+      pre {
+        background: #f8fafc !important;
+        color: #0f172a !important;
+        border: 1pt solid #cbd5e1 !important;
+      }
+
+      .kw { color: #6b21a8 !important; font-weight: bold; }
+      .fn { color: #0369a1 !important; font-weight: bold; }
+      .str { color: #047857 !important; }
+      .num { color: #b45309 !important; }
+      .cmt { color: #64748b !important; }
+
+      .table-container {
+        border: 1pt solid #cbd5e1 !important;
+      }
+
+      th {
+        background: #f1f5f9 !important;
+        color: #000000 !important;
+        border-bottom: 1.5pt solid #94a3b8 !important;
+      }
+
+      td {
+        border-bottom: 1pt solid #e2e8f0 !important;
+      }
+
+      a {
+        text-decoration: none !important;
+        color: inherit !important;
+      }
+    }
+
+    /* Mobile Responsive */
+    @media (max-width: 900px) {
+      #sidebar {
+        transform: translateX(-100%);
+      }
+      #sidebar.open {
+        transform: translateX(0);
+      }
+      #main {
+        margin-left: 0;
+      }
+      .content-area {
+        padding: 24px 20px;
+      }
+      .doc-hero {
+        padding: 32px 20px;
+      }
+      .doc-hero h1 {
+        font-size: 2rem;
+      }
+      .top-bar {
+        padding: 12px 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ========================================================================
+       SIDEBAR NAVIGATION
+       ======================================================================== -->
+  <aside id="sidebar">
+    <div class="sidebar-header">
+      <div class="brand-title">
+        <span>⚡ LiveBindings</span>
+        <span class="brand-badge">Lazarus</span>
+      </div>
+      <div style="font-size: 0.75rem; color: #94a3b8; margin-top: 4px;">Free Pascal • RTTI • fpexprpars</div>
+    </div>
+
+    <div class="sidebar-search">
+      <input type="text" id="searchInput" class="search-input" placeholder="🔍 Buscar no manual..." onkeyup="filterNav()">
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-group-title">Introdução</div>
+      <a href="#hero" class="nav-item active">Início & Visão Geral</a>
+      <a href="#arquitetura" class="nav-item">1. Arquitetura de Pacotes</a>
+      <a href="#instalacao" class="nav-item">2. Instalação no Lazarus</a>
+
+      <div class="nav-group-title">Componentes & Motor</div>
+      <a href="#componentes" class="nav-item">3. Componentes Centrais</a>
+      <a href="#modos" class="nav-item">4. Modos de Operação</a>
+      <a href="#expressoes" class="nav-item">5. Motor de Expressões</a>
+
+      <div class="nav-group-title">Ambiente Visual (IDE)</div>
+      <a href="#designer" class="nav-item">6. LiveBindings Designer</a>
+      <a href="#construtor" class="nav-item">7. Construtor de Expressões</a>
+      <a href="#propeditors" class="nav-item">8. Object Inspector</a>
+
+      <div class="nav-group-title">Desenvolvimento & Prática</div>
+      <a href="#runtime" class="nav-item">9. Código em Tempo de Execução</a>
+      <a href="#demonstracao" class="nav-item">10. Projeto de Demonstração</a>
+      <a href="#referencia-funcoes" class="nav-item">11. Catálogo de Funções</a>
+      <a href="#comparativo" class="nav-item">12. Comparativo Delphi vs Lazarus</a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div>Versão 1.0.0 (FPC 3.2.2 / Laz 4.8)</div>
+      <div>© 2026 LiveBindings Suite</div>
+    </div>
+  </aside>
+
+  <!-- ========================================================================
+       MAIN CONTENT
+       ======================================================================== -->
+  <div id="main">
+
+    <!-- Top Action Bar -->
+    <header class="top-bar">
+      <div class="bar-breadcrumbs">
+        <span>Documentação</span>
+        <span>/</span>
+        <strong>Manual Oficial do Usuário</strong>
+      </div>
+      <div class="bar-actions">
+        <button class="btn btn-secondary" onclick="toggleTheme()" title="Alternar tema claro/escuro">
+          <span id="themeIcon">🌙</span> <span class="hide-print">Tema</span>
+        </button>
+        <button class="btn btn-primary" onclick="window.print()" title="Imprimir ou Salvar como PDF formatado">
+          🖨️ Exportar para PDF / Imprimir
+        </button>
+      </div>
+    </header>
+
+    <main class="content-area">
+
+      <!-- ====================================================================
+           HERO COVER SECTION
+           ==================================================================== -->
+      <section id="hero" class="doc-hero">
+        <div class="meta-pills" style="margin-bottom: 16px;">
+          <span class="pill pill-green">✓ Instalação Verificada (C:\lazarus)</span>
+          <span class="pill">Lazarus 4.8</span>
+          <span class="pill">FPC 3.2.2</span>
+          <span class="pill">RTTI Estendida</span>
+          <span class="pill">fpexprpars</span>
+        </div>
+        <h1>LiveBindings Visual com Binding Expressions</h1>
+        <p class="lead">
+          Manual técnico completo e guia de referência para desenvolvimento de interfaces reativas e desacopladas no Lazarus Component Library (LCL) e Free Pascal Compiler (FPC).
+        </p>
+        <div class="meta-pills">
+          <span class="pill">Autor: Engenharia de Software</span>
+          <span class="pill">Data: Outubro de 2026</span>
+          <span class="pill">Licença: LGPL com linking exception</span>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           1. ARQUITETURA DE PACOTES
+           ==================================================================== -->
+      <section id="arquitetura">
+        <h2>1. Arquitetura Modular de Pacotes</h2>
+        <p>
+          A suíte segue rigorosamente as diretrizes arquiteturais de componentes do Lazarus, modularizada em dois pacotes independentes para separar com perfeição o código binário final da infraestrutura de design da IDE:
+        </p>
+
+        <div class="feature-grid">
+          <div class="feature-card">
+            <span class="feature-icon">⚙️</span>
+            <div class="feature-title">pkg_livebindings_runtime.lpk</div>
+            <div class="feature-desc">
+              Pacote <strong>RunAndDesignTime</strong> que contém o motor de execução, parsing de expressões com <code>fpexprpars</code>, conversão dinâmica de RTTI e classes fundamentais (<code>TBindingManager</code>, <code>TBindingLink</code>, <code>TBindingLinks</code>). Incluído na sua aplicação final.
+            </div>
+          </div>
+          <div class="feature-card">
+            <span class="feature-icon">🎨</span>
+            <div class="feature-title">pkg_livebindings_designtime.lpk</div>
+            <div class="feature-desc">
+              Pacote exclusivo <strong>DesignTime</strong> instalado diretamente na IDE do Lazarus. Fornece a janela dockable <em>LiveBindings Designer</em>, integração com o menu de contexto ("Vincular com LiveBinding..."), property editors dropdown e o diálogo construtor de expressões.
+            </div>
+          </div>
+        </div>
+
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Arquivo</th>
+                <th>Pacote</th>
+                <th>Função / Responsabilidade</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>uBindingRuntime.pas</code></td>
+                <td>Runtime</td>
+                <td>Motor de sincronização RTTI, parser de expressões e classes de dados.</td>
+              </tr>
+              <tr>
+                <td><code>uLiveBindingsRegister.pas</code></td>
+                <td>Designtime</td>
+                <td>Registra componentes na paleta, comandos de menu e criadores de janela.</td>
+              </tr>
+              <tr>
+                <td><code>uBindingPropEditors.pas</code></td>
+                <td>Designtime</td>
+                <td>Editores de propriedade dropdown e modal para o Object Inspector.</td>
+              </tr>
+              <tr>
+                <td><code>uBindingComponentEditor.pas</code></td>
+                <td>Designtime</td>
+                <td>Component editor de clique direito no formulário ("Vincular com LiveBinding...").</td>
+              </tr>
+              <tr>
+                <td><code>uBindingDesignerForm.pas</code></td>
+                <td>Designtime</td>
+                <td>Formulário dockable integrado com <code>GlobalDesignHook</code> e <code>IDEWindowCreators</code>.</td>
+              </tr>
+              <tr>
+                <td><code>uBindingExpressionDialog.pas</code></td>
+                <td>Designtime</td>
+                <td>Diálogo modal construtor e validador de expressões com catálogo de funções.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           2. INSTALAÇÃO NO LAZARUS
+           ==================================================================== -->
+      <section id="instalacao">
+        <h2>2. Instalação e Reconstrução da IDE</h2>
+        <div class="callout callout-success">
+          <div class="callout-title">✓ Estado Atual da Instalação</div>
+          Os pacotes já foram integrados e compilados com sucesso no seu executável oficial em <code>C:\lazarus\lazarus.exe</code>.
+        </div>
+
+        <h3>Processo Automatizado Realizado:</h3>
+        <ol>
+          <li><strong>Registro de Links:</strong> Ambos os pacotes foram linkados no registro de pacotes do Lazarus via <code>lazbuild --add-package-link</code>.</li>
+          <li><strong>Instalação do Pacote Designtime:</strong> O pacote <code>pkg_livebindings_designtime.lpk</code> foi registrado para instalação permanente.</li>
+          <li><strong>Reconstrução do Executável da IDE:</strong> A IDE foi completamente reconstruída com <code>--build-ide</code>, gerando o novo <code>C:\lazarus\lazarus.exe</code> com os componentes e janelas embutidos.</li>
+        </ol>
+
+        <h3>Reconstrução Manual (se necessário no futuro):</h3>
+        <pre><code><span class="cmt"># 1. Registrar os pacotes no Lazarus</span>
+lazbuild --add-package-link "runtime\pkg_livebindings_runtime.lpk"
+lazbuild --add-package-link "designtime\pkg_livebindings_designtime.lpk"
+
+<span class="cmt"># 2. Instalar o pacote de design e reconstruir o Lazarus</span>
+lazbuild --add-package "designtime\pkg_livebindings_designtime.lpk" --build-ide=</code></pre>
+      </section>
+
+      <!-- ====================================================================
+           3. COMPONENTES CENTRAIS
+           ==================================================================== -->
+      <section id="componentes">
+        <h2>3. Componentes Centrais</h2>
+
+        <h3>TBindingManager</h3>
+        <p>
+          Componente não-visual que atua como o regente e orquestrador de todos os vínculos em um formulário ou <code>TDataModule</code>.
+        </p>
+        <ul>
+          <li><strong><code>Links: TBindingLinks</code>:</strong> Coleção tipada gerenciando cada regra de ligação, com suporte a persistência nativa em arquivos <code>.lfm</code>.</li>
+          <li><strong><code>AutoSyncOnLoaded: Boolean</code>:</strong> Quando <code>True</code> (padrão), efetua a sincronização total automática assim que o formulário é carregado em tempo de execução.</li>
+          <li><strong><code>Active: Boolean</code>:</strong> Liga ou desliga globalmente todas as sincronizações do gerenciador.</li>
+          <li><strong><code>Notification</code>:</strong> Escuta a destruição de componentes e limpa referências órfãs automaticamente, garantindo integridade de memória.</li>
+        </ul>
+
+        <h3>TBindingLink</h3>
+        <p>
+          Cada item individual da coleção <code>Links</code>, representando a ponte entre uma origem e um destino.
+        </p>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Propriedade</th>
+                <th>Tipo</th>
+                <th>Descrição</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>Source</code></td>
+                <td><code>TComponent</code></td>
+                <td>Componente provedor do dado inicial.</td>
+              </tr>
+              <tr>
+                <td><code>SourceProperty</code></td>
+                <td><code>string</code></td>
+                <td>Nome da propriedade RTTI do Source (no modo <code>bmDirectProperty</code>).</td>
+              </tr>
+              <tr>
+                <td><code>SourceExpression</code></td>
+                <td><code>string</code></td>
+                <td>Fórmula dinâmica avaliada pelo <code>fpexprpars</code> (no modo <code>bmExpression</code>).</td>
+              </tr>
+              <tr>
+                <td><code>Target</code></td>
+                <td><code>TComponent</code></td>
+                <td>Componente que receberá o valor calculado ou transferido.</td>
+              </tr>
+              <tr>
+                <td><code>TargetProperty</code></td>
+                <td><code>string</code></td>
+                <td>Nome da propriedade RTTI do Target onde o dado será gravado.</td>
+              </tr>
+              <tr>
+                <td><code>Direction</code></td>
+                <td><code>TBindingDirection</code></td>
+                <td><code>bdSourceToTarget</code> (padrão), <code>bdTargetToSource</code> ou <code>bdTwoWay</code>.</td>
+              </tr>
+              <tr>
+                <td><code>Mode</code></td>
+                <td><code>TBindingMode</code></td>
+                <td><code>bmDirectProperty</code> ou <code>bmExpression</code>.</td>
+              </tr>
+              <tr>
+                <td><code>Active</code></td>
+                <td><code>Boolean</code></td>
+                <td>Ativa ou pausa este vínculo específico.</td>
+              </tr>
+              <tr>
+                <td><code>FormatMask</code></td>
+                <td><code>string</code></td>
+                <td>Máscara opcional de formatação (ex: <code>R$ #,##0.00</code>, <code>%d%%</code>).</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           4. MODOS DE OPERAÇÃO
+           ==================================================================== -->
+      <section id="modos">
+        <h2>4. Modos de Operação e Coerção RTTI</h2>
+
+        <h3>Modo 1: Vínculo Direto (<code>bmDirectProperty</code>)</h3>
+        <p>
+          Transfere o valor lido da propriedade do componente <code>Source</code> diretamente para a propriedade do componente <code>Target</code>. O motor conta com um avançado conversor de tipos via RTTI:
+        </p>
+        <ul>
+          <li><strong>Inteiro para String:</strong> Converte automaticamente (ex: <code>TTrackBar.Position -> TLabel.Caption</code>).</li>
+          <li><strong>String para Inteiro / Float:</strong> Executa conversão segura com tratamento de valores padrão.</li>
+          <li><strong>Booleano para Estado:</strong> Converte <code>True/False</code> para propriedades de visibilidade ou habilitação (ex: <code>TCheckBox.Checked -> TButton.Enabled</code>).</li>
+          <li><strong>Enumerações:</strong> Suporte a leitura de nomes ordinais e escrita compatível com símbolos de enumeração.</li>
+        </ul>
+
+        <h3>Modo 2: Vínculo por Expressão Dinâmica (<code>bmExpression</code>)</h3>
+        <p>
+          Calcula o valor do destino através do motor <code>fpexprpars</code>. As propriedades publicadas do componente de origem são automaticamente transformadas em variáveis locais no escopo do cálculo.
+        </p>
+      </section>
+
+      <!-- ====================================================================
+           5. MOTOR DE EXPRESSÕES
+           ==================================================================== -->
+      <section id="expressoes">
+        <h2>5. Motor de Expressões Dinâmicas (fpexprpars)</h2>
+        <p>
+          Ao calcular uma expressão, o LiveBindings identifica dinamicamente o tipo de cada propriedade e a registra como variável tipada no parser (<code>AddFloatVariable</code>, <code>AddStringVariable</code>, <code>AddBooleanVariable</code>, <code>AddIntegerVariable</code>).
+        </p>
+
+        <h3>Identificadores Automáticos:</h3>
+        <ol>
+          <li><strong>Propriedades do Source:</strong> Usadas diretamente pelo nome da propriedade:
+            <pre><code><span class="cmt">// Se Source for um TFloatSpinEdit com propriedade "Value":</span>
+Value * <span class="num">1.20</span>
+
+<span class="cmt">// Se Source for um TEdit com propriedade "Text":</span>
+Upper(Text)
+
+<span class="cmt">// Se Source for um TCheckBox com propriedade "Checked":</span>
+If(Checked, <span class="str">"CLIENTE VIP"</span>, <span class="str">"REGULAR"</span>)</code></pre>
+          </li>
+          <li><strong>Componentes Irmãos no mesmo Formulário:</strong> Acessíveis através da sintaxe <code>Componente_Propriedade</code>:
+            <pre><code><span class="cmt">// Multiplicação combinando dois controles diferentes do form:</span>
+Value * seQtd_Value * <span class="num">1.15</span>
+
+<span class="cmt">// Concatenação de dois TEdits:</span>
+Upper(Trim(Text)) + <span class="str">' '</span> + Upper(Trim(edtSobrenome_Text))</code></pre>
+          </li>
+        </ol>
+
+        <div class="callout callout-info">
+          <div class="callout-title">💡 Formatação com FormatMask</div>
+          Se o destino for um campo textual (como <code>TLabel.Caption</code> ou <code>TEdit.Text</code>), você pode preencher a propriedade <code>FormatMask</code> do vínculo. A formatação de moeda (ex: <code>R$ #,##0.00</code>) ou percentual (ex: <code>%d%%</code>) será aplicada automaticamente após a avaliação da fórmula!
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           6. DESIGNER VISUAL DOCKABLE
+           ==================================================================== -->
+      <section id="designer">
+        <h2>6. LiveBindings Designer (Janela Dockable)</h2>
+        <p>
+          A ferramenta visual é acessada em <strong>Exibir -> Janelas Secundárias -> LiveBinding Designer</strong> ou clicando com o botão direito em qualquer controle e selecionando <strong>"Vincular com LiveBinding..."</strong>.
+        </p>
+
+        <div class="feature-grid">
+          <div class="feature-card">
+            <span class="feature-icon">🌳</span>
+            <div class="feature-title">Árvore de Componentes (Esquerda)</div>
+            <div class="feature-desc">
+              Lista todos os componentes do formulário em edição ativa na IDE. Expanda para ver cada propriedade RTTI publicada e seu respectivo tipo de dado. Filtro rápido por texto no topo.
+            </div>
+          </div>
+          <div class="feature-card">
+            <span class="feature-icon">📋</span>
+            <div class="feature-title">Grade de Vínculos (Direita)</div>
+            <div class="feature-desc">
+              Tabela exibindo todos os vínculos ativos do <code>TBindingManager</code>. Mostra status, origem, expressão ou propriedade, direção, destino e modo. Permite editar expressões com duplo clique.
+            </div>
+          </div>
+        </div>
+
+        <h3>Barra de Ações Rápidas:</h3>
+        <ul>
+          <li><strong>🔗 Vínculo Direto:</strong> Conecta a propriedade marcada como Origem com a propriedade marcada como Destino.</li>
+          <li><strong>⚡ Vínculo Expressão:</strong> Abre o construtor de expressões e adiciona o cálculo ao gerenciador.</li>
+          <li><strong>✏️ Editar Expressão:</strong> Abre o diálogo para alterar a fórmula do vínculo selecionado.</li>
+          <li><strong>🗑️ Excluir:</strong> Remove o vínculo selecionado com confirmação.</li>
+          <li><strong>✔️ Ativar/Desat.:</strong> Alterna o estado ativo do vínculo.</li>
+          <li><strong>🔄 Sincronizar:</strong> Força a sincronização imediata do vínculo selecionado.</li>
+        </ul>
+      </section>
+
+      <!-- ====================================================================
+           7. CONSTRUTOR DE EXPRESSÕES
+           ==================================================================== -->
+      <section id="construtor">
+        <h2>7. Construtor Modal de Expressões</h2>
+        <p>
+          O diálogo modal <code>TBindingExpressionDialog</code> proporciona um ambiente completo e seguro para montagem de fórmulas em tempo de design:
+        </p>
+        <ul>
+          <li><strong>Editor com Destaque:</strong> Campo Memo com fonte monoespaçada e posicionamento inteligente de cursor.</li>
+          <li><strong>Lista de Propriedades Disponíveis:</strong> Com duplo clique, insere o identificador exato da propriedade no texto da fórmula.</li>
+          <li><strong>Catálogo de Funções fpexprpars:</strong> Separado por categorias (Matemática, Strings, Lógica, Data/Hora, Conversão). Ao dar duplo clique em uma função (ex: <code>UPPER(S)</code>), ela é inserida e o cursor é automaticamente posicionado dentro dos parênteses.</li>
+          <li><strong>Botão "⚡ Testar Expressão":</strong> Avalia a fórmula em tempo real usando as propriedades do formulário. Se estiver correta, exibe em verde o tipo e o valor computado; se houver erro de sintaxe, exibe a mensagem de diagnóstico exata em vermelho.</li>
+        </ul>
+      </section>
+
+      <!-- ====================================================================
+           8. OBJECT INSPECTOR
+           ==================================================================== -->
+      <section id="propeditors">
+        <h2>8. Property Editors no Object Inspector</h2>
+        <p>
+          A integração com a paleta de propriedades do Lazarus oferece comodidade máxima:
+        </p>
+        <div class="feature-grid">
+          <div class="feature-card">
+            <span class="feature-icon">🔽</span>
+            <div class="feature-title">TBindingPropertySelectorEditor</div>
+            <div class="feature-desc">
+              Dropdown inteligente para <code>SourceProperty</code> e <code>TargetProperty</code>. Inspeciona o componente configurado e exibe apenas as propriedades compatíveis (legíveis para origem, graváveis para destino).
+            </div>
+          </div>
+          <div class="feature-card">
+            <span class="feature-icon">🔍</span>
+            <div class="feature-title">TBindingExpressionEditor</div>
+            <div class="feature-desc">
+              Editor de diálogo para <code>SourceExpression</code>. Exibe o botão de reticências <code>[...]</code> no Object Inspector para invocar o Construtor Modal de Expressões.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           9. CÓDIGO EM TEMPO DE EXECUÇÃO
+           ==================================================================== -->
+      <section id="runtime">
+        <h2>9. Programação em Tempo de Execução (Runtime API)</h2>
+        <p>
+          Todos os recursos visuais do LiveBindings podem ser manipulados programaticamente com pouquíssimas linhas de código Pascal:
+        </p>
+
+        <h3>Exemplo 1: Vínculo Direto via Código</h3>
+        <pre><code><span class="kw">uses</span>
+  uBindingRuntime;
+
+<span class="kw">var</span>
+  Link: <span class="typ">TBindingLink</span>;
+<span class="kw">begin</span>
+  <span class="cmt">// Cria vínculo: Edit1.Text -> Label1.Caption</span>
+  Link := BindingManager1.AddLink(Edit1, <span class="str">'Text'</span>, Label1, <span class="str">'Caption'</span>);
+  Link.Active := <span class="num">True</span>;
+  Link.Synchronize;
+<span class="kw">end</span>;</code></pre>
+
+        <h3>Exemplo 2: Vínculo por Expressão com Máscara Monetária</h3>
+        <pre><code><span class="kw">var</span>
+  Link: <span class="typ">TBindingLink</span>;
+<span class="kw">begin</span>
+  <span class="cmt">// Calcula o total com acréscimo de 15%</span>
+  Link := BindingManager1.AddExpressionLink(
+    sePreco,
+    <span class="str">'Value * seQtd_Value * 1.15'</span>,
+    lblTotalComImposto,
+    <span class="str">'Caption'</span>
+  );
+  Link.FormatMask := <span class="str">'R$ #,##0.00'</span>;
+  Link.Active := <span class="num">True</span>;
+  Link.Synchronize;
+<span class="kw">end</span>;</code></pre>
+
+        <h3>Exemplo 3: Expressão Condicional e Tratamento de Eventos</h3>
+        <pre><code><span class="kw">procedure</span> <span class="fn">TForm1.FormCreate</span>(Sender: <span class="typ">TObject</span>);
+<span class="kw">begin</span>
+  <span class="cmt">// Captura de eventos para auditoria e logs</span>
+  BindingManager1.OnAfterSync := @DoLogSync;
+  BindingManager1.OnBindingError := @DoTratarErro;
+
+  <span class="cmt">// Vínculo condicional</span>
+  BindingManager1.AddExpressionLink(
+    chkAtivo,
+    <span class="str">'If(Checked, "SISTEMA OPERACIONAL", "SISTEMA PAUSADO")'</span>,
+    lblStatus,
+    <span class="str">'Caption'</span>
+  );
+<span class="kw">end</span>;
+
+<span class="kw">procedure</span> <span class="fn">TForm1.DoTratarErro</span>(Sender: <span class="typ">TObject</span>; Link: <span class="typ">TBindingLink</span>; <span class="kw">const</span> ErrorMsg: <span class="typ">string</span>);
+<span class="kw">begin</span>
+  WriteLn(<span class="str">'[Falha na Expressão] '</span> + Link.DisplayName + <span class="str">': '</span> + ErrorMsg);
+<span class="kw">end</span>;</code></pre>
+      </section>
+
+      <!-- ====================================================================
+           10. PROJETO DE DEMONSTRAÇÃO
+           ==================================================================== -->
+      <section id="demonstracao">
+        <h2>10. Projeto de Demonstração Interativo</h2>
+        <p>
+          O projeto de demonstração executável está localizado na pasta <code>demo/</code> e pode ser testado imediatamente:
+        </p>
+        <ul>
+          <li><strong>Executável Direto:</strong> <code>demo\lib\x86_64-win64\LiveBindingsDemo.exe</code></li>
+          <li><strong>Arquivo de Projeto Lazarus:</strong> <code>demo\LiveBindingsDemo.lpi</code></li>
+        </ul>
+
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Aba da Demonstração</th>
+                <th>Cenários Testados</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>1. Vínculos Diretos</strong></td>
+                <td>
+                  • <code>TEdit.Text -> TLabel.Caption</code> em tempo real.<br>
+                  • <code>TTrackBar.Position -> TProgressBar.Position</code> & Label percentual formatado.<br>
+                  • <code>TCheckBox.Checked -> TButton.Enabled</code>.
+                </td>
+              </tr>
+              <tr>
+                <td><strong>2. Expressões Dinâmicas</strong></td>
+                <td>
+                  • Cálculo matemático de Subtotal (<code>Value * seQtd_Value</code>).<br>
+                  • Total com 15% de imposto formatado como moeda (<code>R$ #,##0.00</code>).<br>
+                  • Manipulação de strings inline: <code>Upper(Text)</code> e <code>Trim(Text)</code>.<br>
+                  • Rótulo condicional com <code>If(Checked, ...)</code>.
+                </td>
+              </tr>
+              <tr>
+                <td><strong>3. Monitor & Runtime</strong></td>
+                <td>
+                  • Tabela monitorando todos os vínculos ativos do <code>TBindingManager</code>.<br>
+                  • Botão para injetar um novo vínculo de expressão em tempo de execução.<br>
+                  • Log em tempo real com eventos <code>OnAfterSync</code> e <code>OnBindingError</code>.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           11. CATÁLOGO DE FUNÇÕES
+           ==================================================================== -->
+      <section id="referencia-funcoes">
+        <h2>11. Catálogo Completo de Funções fpexprpars</h2>
+
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Função</th>
+                <th>Retorno</th>
+                <th>Parâmetros</th>
+                <th>Descrição e Exemplo</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>UPPER(S)</code></td>
+                <td>String</td>
+                <td>String</td>
+                <td>Converte texto para maiúsculas. Ex: <code>Upper(Text)</code></td>
+              </tr>
+              <tr>
+                <td><code>LOWER(S)</code></td>
+                <td>String</td>
+                <td>String</td>
+                <td>Converte texto para minúsculas. Ex: <code>Lower(Text)</code></td>
+              </tr>
+              <tr>
+                <td><code>TRIM(S)</code></td>
+                <td>String</td>
+                <td>String</td>
+                <td>Remove espaços antes e depois do texto. Ex: <code>Trim(Text)</code></td>
+              </tr>
+              <tr>
+                <td><code>IF(Cond, S1, S2)</code></td>
+                <td>String</td>
+                <td>Boolean, String, String</td>
+                <td>Retorna S1 se Cond for verdadeiro, senão S2. Ex: <code>If(Ativo, 'Sim', 'Não')</code></td>
+              </tr>
+              <tr>
+                <td><code>IFNUM(Cond, N1, N2)</code></td>
+                <td>Float</td>
+                <td>Boolean, Float, Float</td>
+                <td>Retorna N1 se verdadeiro, senão N2. Ex: <code>IfNum(Vip, Preco*0.8, Preco)</code></td>
+              </tr>
+              <tr>
+                <td><code>ROUND(X)</code></td>
+                <td>Integer</td>
+                <td>Float</td>
+                <td>Arredonda para o inteiro mais próximo. Ex: <code>Round(Valor)</code></td>
+              </tr>
+              <tr>
+                <td><code>TRUNC(X)</code></td>
+                <td>Integer</td>
+                <td>Float</td>
+                <td>Trunca a parte decimal do número. Ex: <code>Trunc(Valor)</code></td>
+              </tr>
+              <tr>
+                <td><code>ABS(X)</code></td>
+                <td>Float</td>
+                <td>Float</td>
+                <td>Retorna o valor absoluto positivo. Ex: <code>Abs(Saldo)</code></td>
+              </tr>
+              <tr>
+                <td><code>SQRT(X)</code></td>
+                <td>Float</td>
+                <td>Float</td>
+                <td>Calcula a raiz quadrada de X. Ex: <code>Sqrt(Area)</code></td>
+              </tr>
+              <tr>
+                <td><code>FORMATFLOAT(M, N)</code></td>
+                <td>String</td>
+                <td>String, Float</td>
+                <td>Aplica máscara numérica. Ex: <code>FormatFloat('#,##0.00', Total)</code></td>
+              </tr>
+              <tr>
+                <td><code>NOW</code></td>
+                <td>DateTime</td>
+                <td>Nenhum</td>
+                <td>Retorna a data e hora do sistema. Ex: <code>Now</code></td>
+              </tr>
+              <tr>
+                <td><code>FORMATDATETIME(M, D)</code></td>
+                <td>String</td>
+                <td>String, DateTime</td>
+                <td>Formata data. Ex: <code>FormatDateTime('dd/mm/yyyy', Now)</code></td>
+              </tr>
+              <tr>
+                <td><code>LENGTH(S)</code></td>
+                <td>Integer</td>
+                <td>String</td>
+                <td>Retorna a quantidade de caracteres. Ex: <code>Length(Senha)</code></td>
+              </tr>
+              <tr>
+                <td><code>COPY(S, Ini, Qtd)</code></td>
+                <td>String</td>
+                <td>String, Int, Int</td>
+                <td>Extrai trecho de texto. Ex: <code>Copy(Codigo, 1, 3)</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           12. COMPARATIVO
+           ==================================================================== -->
+      <section id="comparativo">
+        <h2>12. Tabela Comparativa: Delphi vs. Lazarus LiveBindings</h2>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Recurso</th>
+                <th>Delphi LiveBindings (FMX/VCL)</th>
+                <th>Lazarus LiveBindings (LCL)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Motor de Execução</strong></td>
+                <td>Data.Bind.Components / RTTI</td>
+                <td><code>uBindingRuntime</code> (FPC TypInfo + Rtti)</td>
+              </tr>
+              <tr>
+                <td><strong>Motor de Expressões</strong></td>
+                <td>TBindingExpressionParser proprietário</td>
+                <td><code>fpexprpars</code> nativo do Free Pascal Compiler</td>
+              </tr>
+              <tr>
+                <td><strong>Designer Visual</strong></td>
+                <td>LiveBindings Designer (OTA FMX)</td>
+                <td><code>TLiveBindingDesignerForm</code> dockable (IDEWindowCreators)</td>
+              </tr>
+              <tr>
+                <td><strong>Persistência</strong></td>
+                <td>Arquivos <code>.dfm</code> / <code>.fmx</code></td>
+                <td>Arquivos nativos <code>.lfm</code> da LCL</td>
+              </tr>
+              <tr>
+                <td><strong>Conexão Rápida</strong></td>
+                <td>Menu de contexto "Quick Binding..."</td>
+                <td>Menu de contexto "Vincular com LiveBinding..."</td>
+              </tr>
+              <tr>
+                <td><strong>Desempenho</strong></td>
+                <td>Avaliação por árvore de tokens</td>
+                <td>Compilação de nós nativos otimizada no FPC</td>
+              </tr>
+              <tr>
+                <td><strong>Licenciamento</strong></td>
+                <td>Proprietário Embarcadero</td>
+                <td>Código Aberto (LGPL com exceção de linkagem)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Footer -->
+      <footer class="doc-footer">
+        <p><strong>Suíte LiveBindings para Lazarus / Free Pascal</strong> • Documentação Oficial v1.0</p>
+        <p>Gerado em Outubro de 2026 • Projetado para compatibilidade total com Lazarus 4.8 e FPC 3.2.2</p>
+      </footer>
+
+    </main>
+  </div>
+
+  <!-- ========================================================================
+       JAVASCRIPT FOR INTERACTIVITY & SEARCH
+       ======================================================================== -->
+  <script>
+    // Live Search in navigation
+    function filterNav() {
+      const input = document.getElementById('searchInput');
+      const filter = input.value.toLowerCase();
+      const navItems = document.querySelectorAll('.sidebar-nav .nav-item');
+
+      navItems.forEach(item => {
+        const text = item.textContent.toLowerCase();
+        if (text.includes(filter)) {
+          item.style.display = 'flex';
+        } else {
+          item.style.display = 'none';
+        }
+      });
+    }
+
+    // Theme toggle (Dark / Light)
+    function toggleTheme() {
+      const html = document.documentElement;
+      const current = html.getAttribute('data-theme');
+      const icon = document.getElementById('themeIcon');
+      
+      if (current === 'dark') {
+        html.removeAttribute('data-theme');
+        icon.textContent = '🌙';
+        localStorage.setItem('theme', 'light');
+      } else {
+        html.setAttribute('data-theme', 'dark');
+        icon.textContent = '☀️';
+        localStorage.setItem('theme', 'dark');
+      }
+    }
+
+    // Restore saved theme
+    (function() {
+      const saved = localStorage.getItem('theme');
+      if (saved === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        const icon = document.getElementById('themeIcon');
+        if (icon) icon.textContent = '☀️';
+      }
+    })();
+
+    // Active link highlighting on scroll
+    window.addEventListener('scroll', () => {
+      const sections = document.querySelectorAll('section');
+      const navLinks = document.querySelectorAll('.sidebar-nav .nav-item');
+      let currentSectionId = '';
+
+      sections.forEach(section => {
+        const sectionTop = section.offsetTop - 100;
+        if (window.pageYOffset >= sectionTop) {
+          currentSectionId = section.getAttribute('id');
+        }
+      });
+
+      navLinks.forEach(link => {
+        link.classList.remove('active');
+        if (link.getAttribute('href') === '#' + currentSectionId) {
+          link.classList.add('active');
+        }
+      });
+    });
+  </script>
+</body>
+</html>

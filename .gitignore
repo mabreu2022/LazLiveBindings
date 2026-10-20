@@ -1,0 +1,17 @@
+# Lazarus and Free Pascal build artifacts
+*.ppu
+*.o
+*.obj
+*.exe
+*.compiled
+*.or
+*.bak
+*~
+
+# Build output and backup directories
+**/lib/
+**/backup/
+
+# Lazarus personal session files
+*.lps
+packagefiles.xml
