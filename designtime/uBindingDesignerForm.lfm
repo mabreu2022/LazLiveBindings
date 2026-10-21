@@ -270,7 +270,7 @@ object LiveBindingDesignerForm: TLiveBindingDesignerForm
           FixedCols = 1
           Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRowSelect, goSmoothScroll]
           PopupMenu = pmLinks
-          RowCount = 1
+          RowCount = 2
           TabOrder = 0
           OnDblClick = sgLinksDblClick
           OnSelectCell = sgLinksSelectCell

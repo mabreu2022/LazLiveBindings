@@ -141,7 +141,6 @@ begin
 
   if LiveBindingDesignerForm = Self then
     LiveBindingDesignerForm := nil;
-  inherited Destroy;
 end;
 
 procedure TLiveBindingDesignerForm.FormShow(Sender: TObject);
@@ -314,7 +313,11 @@ begin
 
   if (Mgr = nil) or (Mgr.Links.Count = 0) then
   begin
-    sgLinks.RowCount := 1;
+    sgLinks.RowCount := 2;
+    sgLinks.Rows[1].Clear;
+    sgLinks.Cells[0, 1] := '-';
+    sgLinks.Cells[2, 1] := '(nenhum vínculo)';
+    sgLinks.Objects[0, 1] := nil;
     sbStatus.Panels[0].Text := 'Nenhum vínculo configurado.';
     Exit;
   end;
@@ -375,7 +378,7 @@ var
 begin
   Result := nil;
   Row := sgLinks.Row;
-  if (Row >= 1) and (Row < sgLinks.RowCount) then
+  if (Row >= 1) and (Row < sgLinks.RowCount) and (sgLinks.Objects[0, Row] <> nil) then
     Result := TBindingLink(sgLinks.Objects[0, Row]);
 end;
 

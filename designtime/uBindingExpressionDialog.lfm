@@ -96,7 +96,6 @@ object BindingExpressionDialog: TBindingExpressionDialog
           Width = 332
           Align = alClient
           BorderSpacing.Around = 6
-          ItemHeight = 0
           OnDblClick = lbPropertiesDblClick
           TabOrder = 1
         end
@@ -159,7 +158,6 @@ object BindingExpressionDialog: TBindingExpressionDialog
           Width = 346
           Align = alClient
           BorderSpacing.Around = 6
-          ItemHeight = 0
           OnClick = lbFunctionsClick
           OnDblClick = lbFunctionsDblClick
           TabOrder = 1

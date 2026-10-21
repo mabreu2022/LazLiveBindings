@@ -5,7 +5,7 @@ unit uLiveBindingsRegister;
 interface
 
 uses
-  Classes, SysUtils,
+  Classes, SysUtils, Controls,
   IDEWindowIntf, MenuIntf, IDECommands, PropEdits, ComponentEditors,
   uBindingRuntime, uBindingPropEditors, uBindingComponentEditor, uBindingDesignerForm;
 
@@ -23,15 +23,16 @@ begin
   RegisterPropertyEditor(TypeInfo(string), TBindingLink, 'TargetProperty', TBindingPropertySelectorEditor);
   RegisterPropertyEditor(TypeInfo(string), TBindingLink, 'SourceExpression', TBindingExpressionEditor);
 
-  // 3. Register Context Menu Component Editor for form controls
-  RegisterComponentEditor(TComponent, TBindingComponentEditor);
+  // 3. Register Context Menu Component Editors
+  RegisterComponentEditor(TBindingManager, TBindingManagerEditor);
+  RegisterComponentEditor(TControl, TBindingControlEditor);
 
   // 4. Register IDE Menu item under View -> Secondary Windows
   RegisterIDEMenuCommand(itmViewSecondaryWindows, 'itmLiveBindingDesigner', 'LiveBinding Designer', nil, @ShowLiveBindingDesigner);
 
-  // 5. Register Dockable Window Creator
+  // 5. Register Dockable Window Creator with standard bounds
   LiveBindingDesignerCreator := IDEWindowCreators.Add(LiveBindingDesignerName, @CreateLiveBindingDesigner, nil,
-    '200', '150', '+840', '+560');
+    '150', '150', '990', '710');
 end;
 
 end.
