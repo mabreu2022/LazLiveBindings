@@ -12,6 +12,91 @@ object MainForm: TMainForm
   object BindingManager1: TBindingManager
     AutoSyncOnLoaded = True
     Active = True
+    Links = <
+      item
+        Source = edtNome
+        SourceProperty = 'Text'
+        Target = lblNomeOutput
+        TargetProperty = 'Caption'
+        Direction = bdSourceToTarget
+        Mode = bmDirectProperty
+        Active = True
+      end
+      item
+        Source = tbVolume
+        SourceProperty = 'Position'
+        Target = pbVolume
+        TargetProperty = 'Position'
+        Direction = bdSourceToTarget
+        Mode = bmDirectProperty
+        Active = True
+      end
+      item
+        Source = tbVolume
+        SourceProperty = 'Position'
+        Target = lblVolumeVal
+        TargetProperty = 'Caption'
+        Direction = bdSourceToTarget
+        Mode = bmDirectProperty
+        Active = True
+        FormatMask = '%d%%'
+      end
+      item
+        Source = chkEnableButton
+        SourceProperty = 'Checked'
+        Target = btnActionTarget
+        TargetProperty = 'Enabled'
+        Direction = bdSourceToTarget
+        Mode = bmDirectProperty
+        Active = True
+      end
+      item
+        Source = sePreco
+        SourceExpression = 'Value * seQtd_Value'
+        Target = lblSubtotal
+        TargetProperty = 'Caption'
+        Direction = bdSourceToTarget
+        Mode = bmExpression
+        Active = True
+        FormatMask = 'R$ #,##0.00'
+      end
+      item
+        Source = sePreco
+        SourceExpression = 'Value * seQtd_Value * 1.15'
+        Target = lblTotalWithTax
+        TargetProperty = 'Caption'
+        Direction = bdSourceToTarget
+        Mode = bmExpression
+        Active = True
+        FormatMask = 'R$ #,##0.00'
+      end
+      item
+        Source = edtTextoOriginal
+        SourceExpression = 'Upper(Text)'
+        Target = lblUpperResult
+        TargetProperty = 'Caption'
+        Direction = bdSourceToTarget
+        Mode = bmExpression
+        Active = True
+      end
+      item
+        Source = edtTextoOriginal
+        SourceExpression = 'Trim(Text)'
+        Target = lblTrimResult
+        TargetProperty = 'Caption'
+        Direction = bdSourceToTarget
+        Mode = bmExpression
+        Active = True
+      end
+      item
+        Source = chkVip
+        SourceExpression = 'If(Checked, ''⭐ CLIENTE VIP: 20% DE DESCONTO APLICADO'', ''CLIENTE REGULAR (SEM DESCONTO)'')'
+        Target = lblConditionalResult
+        TargetProperty = 'Caption'
+        Direction = bdSourceToTarget
+        Mode = bmExpression
+        Active = True
+      end>
     Left = 780
     Top = 16
   end

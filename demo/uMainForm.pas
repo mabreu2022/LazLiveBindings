@@ -107,45 +107,49 @@ begin
   BindingManager1.OnAfterSync := @BindingManager1AfterSync;
   BindingManager1.OnBindingError := @BindingManager1BindingError;
 
-  // 1. Direct Binding: edtNome.Text -> lblNomeOutput.Caption
-  L := BindingManager1.AddLink(edtNome, 'Text', lblNomeOutput, 'Caption');
-  L.Active := True;
+  // Fallback programmatic setup only if links were not already loaded from .lfm
+  if BindingManager1.Links.Count = 0 then
+  begin
+    // 1. Direct Binding: edtNome.Text -> lblNomeOutput.Caption
+    L := BindingManager1.AddLink(edtNome, 'Text', lblNomeOutput, 'Caption');
+    L.Active := True;
 
-  // 2. Direct Binding: tbVolume.Position -> pbVolume.Position
-  L := BindingManager1.AddLink(tbVolume, 'Position', pbVolume, 'Position');
-  L.Active := True;
+    // 2. Direct Binding: tbVolume.Position -> pbVolume.Position
+    L := BindingManager1.AddLink(tbVolume, 'Position', pbVolume, 'Position');
+    L.Active := True;
 
-  // 3. Direct Binding: tbVolume.Position -> lblVolumeVal.Caption (with FormatMask)
-  L := BindingManager1.AddLink(tbVolume, 'Position', lblVolumeVal, 'Caption');
-  L.FormatMask := '%d%%';
-  L.Active := True;
+    // 3. Direct Binding: tbVolume.Position -> lblVolumeVal.Caption (with FormatMask)
+    L := BindingManager1.AddLink(tbVolume, 'Position', lblVolumeVal, 'Caption');
+    L.FormatMask := '%d%%';
+    L.Active := True;
 
-  // 4. Direct Binding: chkEnableButton.Checked -> btnActionTarget.Enabled
-  L := BindingManager1.AddLink(chkEnableButton, 'Checked', btnActionTarget, 'Enabled');
-  L.Active := True;
+    // 4. Direct Binding: chkEnableButton.Checked -> btnActionTarget.Enabled
+    L := BindingManager1.AddLink(chkEnableButton, 'Checked', btnActionTarget, 'Enabled');
+    L.Active := True;
 
-  // 5. Expression Binding: Math Subtotal (sePreco.Value * seQtd.Value)
-  L := BindingManager1.AddExpressionLink(sePreco, 'Value * seQtd_Value', lblSubtotal, 'Caption');
-  L.FormatMask := 'R$ #,##0.00';
-  L.Active := True;
+    // 5. Expression Binding: Math Subtotal (sePreco.Value * seQtd.Value)
+    L := BindingManager1.AddExpressionLink(sePreco, 'Value * seQtd_Value', lblSubtotal, 'Caption');
+    L.FormatMask := 'R$ #,##0.00';
+    L.Active := True;
 
-  // 6. Expression Binding: Total with 15% Tax (sePreco.Value * seQtd.Value * 1.15)
-  L := BindingManager1.AddExpressionLink(sePreco, 'Value * seQtd_Value * 1.15', lblTotalWithTax, 'Caption');
-  L.FormatMask := 'R$ #,##0.00';
-  L.Active := True;
+    // 6. Expression Binding: Total with 15% Tax (sePreco.Value * seQtd.Value * 1.15)
+    L := BindingManager1.AddExpressionLink(sePreco, 'Value * seQtd_Value * 1.15', lblTotalWithTax, 'Caption');
+    L.FormatMask := 'R$ #,##0.00';
+    L.Active := True;
 
-  // 7. Expression Binding: String UpperCase
-  L := BindingManager1.AddExpressionLink(edtTextoOriginal, 'Upper(Text)', lblUpperResult, 'Caption');
-  L.Active := True;
+    // 7. Expression Binding: String UpperCase
+    L := BindingManager1.AddExpressionLink(edtTextoOriginal, 'Upper(Text)', lblUpperResult, 'Caption');
+    L.Active := True;
 
-  // 8. Expression Binding: String Trim
-  L := BindingManager1.AddExpressionLink(edtTextoOriginal, 'Trim(Text)', lblTrimResult, 'Caption');
-  L.Active := True;
+    // 8. Expression Binding: String Trim
+    L := BindingManager1.AddExpressionLink(edtTextoOriginal, 'Trim(Text)', lblTrimResult, 'Caption');
+    L.Active := True;
 
-  // 9. Expression Binding: Conditional Logic
-  L := BindingManager1.AddExpressionLink(chkVip, 'If(Checked, "⭐ CLIENTE VIP: 20% DE DESCONTO APLICADO", "CLIENTE REGULAR (SEM DESCONTO)")',
-    lblConditionalResult, 'Caption');
-  L.Active := True;
+    // 9. Expression Binding: Conditional Logic
+    L := BindingManager1.AddExpressionLink(chkVip, 'If(Checked, "⭐ CLIENTE VIP: 20% DE DESCONTO APLICADO", "CLIENTE REGULAR (SEM DESCONTO)")',
+      lblConditionalResult, 'Caption');
+    L.Active := True;
+  end;
 
   // Initial synchronization
   BindingManager1.SynchronizeAll;

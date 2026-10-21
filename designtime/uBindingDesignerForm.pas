@@ -64,6 +64,7 @@ type
     procedure sgLinksDblClick(Sender: TObject);
     procedure sgLinksSelectCell(Sender: TObject; aCol, aRow: Integer; var CanSelect: Boolean);
     procedure tvComponentsSelectionChanged(Sender: TObject);
+    procedure tvComponentsDblClick(Sender: TObject);
   private
     FSelectedSourceComp: TComponent;
     FSelectedSourceProp: string;
@@ -132,6 +133,8 @@ begin
     GlobalDesignHook.AddHandlerComponentRenamed(@OnComponentRenamed);
     GlobalDesignHook.AddHandlerPersistentDeleted(@OnPersistentDeleted);
   end;
+
+  tvComponents.OnDblClick := @tvComponentsDblClick;
 end;
 
 procedure TLiveBindingDesignerForm.FormDestroy(Sender: TObject);
@@ -407,6 +410,33 @@ begin
   RefreshComponentsTree;
 end;
 
+function GetDefaultPropertyForComp(AComp: TComponent): string;
+begin
+  Result := '';
+  if AComp = nil then Exit;
+
+  if IsPublishedProp(AComp, 'Checked') then
+    Exit('Checked');
+  if IsPublishedProp(AComp, 'Value') then
+    Exit('Value');
+  if IsPublishedProp(AComp, 'Position') then
+    Exit('Position');
+  if IsPublishedProp(AComp, 'Date') then
+    Exit('Date');
+  if IsPublishedProp(AComp, 'ItemIndex') and not IsPublishedProp(AComp, 'Text') then
+    Exit('ItemIndex');
+  if IsPublishedProp(AComp, 'Text') then
+    Exit('Text');
+  if IsPublishedProp(AComp, 'Caption') then
+    Exit('Caption');
+  if IsPublishedProp(AComp, 'ItemIndex') then
+    Exit('ItemIndex');
+  if IsPublishedProp(AComp, 'Lines') then
+    Exit('Lines');
+  if IsPublishedProp(AComp, 'Enabled') then
+    Exit('Enabled');
+end;
+
 procedure TLiveBindingDesignerForm.tvComponentsSelectionChanged(Sender: TObject);
 var
   Node: TTreeNode;
@@ -433,49 +463,137 @@ begin
   begin
     Comp := TComponent(Node.Data);
     sbStatus.Panels[1].Text := Format('Componente: %s (%s)', [Comp.Name, Comp.ClassName]);
+    Node.Expanded := True; // Auto-expand properties when component is selected
   end;
 end;
 
 procedure TLiveBindingDesignerForm.btnSetSourceClick(Sender: TObject);
 var
-  Node: TTreeNode;
+  Node, ChildNode: TTreeNode;
+  Comp: TComponent;
   P: Integer;
+  DefProp, PropName: string;
 begin
   Node := tvComponents.Selected;
-  if (Node = nil) or (Node.Parent = nil) then
+  if Node = nil then
   begin
-    ShowMessage('Selecione uma propriedade na árvore para definir como Origem (Source).');
+    ShowMessage('Selecione um componente ou propriedade na árvore para definir como Origem (Source).');
     Exit;
   end;
 
-  FSelectedSourceComp := TComponent(Node.Data);
-  FSelectedSourceProp := Node.Text;
-  P := Pos(' (', FSelectedSourceProp);
-  if P > 0 then
-    FSelectedSourceProp := Copy(FSelectedSourceProp, 1, P - 1);
+  if Node.Parent <> nil then
+  begin
+    // It's a property node
+    FSelectedSourceComp := TComponent(Node.Data);
+    FSelectedSourceProp := Node.Text;
+    P := Pos(' (', FSelectedSourceProp);
+    if P > 0 then
+      FSelectedSourceProp := Copy(FSelectedSourceProp, 1, P - 1);
+  end
+  else
+  begin
+    // It's a component node: auto-detect its main property
+    Comp := TComponent(Node.Data);
+    if Comp = nil then Exit;
+    DefProp := GetDefaultPropertyForComp(Comp);
+    if DefProp = '' then
+    begin
+      Node.Expanded := True;
+      ShowMessage(Format('O componente "%s" não possui uma propriedade padrão óbvia. Por favor, expanda o nó e escolha a propriedade.', [Comp.Name]));
+      Exit;
+    end;
+    FSelectedSourceComp := Comp;
+    FSelectedSourceProp := DefProp;
+    Node.Expanded := True;
+
+    // Highlight child node matching DefProp if available
+    ChildNode := Node.GetFirstChild;
+    while ChildNode <> nil do
+    begin
+      PropName := ChildNode.Text;
+      P := Pos(' (', PropName);
+      if P > 0 then PropName := Copy(PropName, 1, P - 1);
+      if SameText(PropName, DefProp) then
+      begin
+        tvComponents.Selected := ChildNode;
+        Break;
+      end;
+      ChildNode := ChildNode.GetNextSibling;
+    end;
+  end;
 
   lblSelectedSource.Caption := Format('Origem: %s.%s', [FSelectedSourceComp.Name, FSelectedSourceProp]);
+  sbStatus.Panels[1].Text := Format('Origem definida: %s.%s', [FSelectedSourceComp.Name, FSelectedSourceProp]);
 end;
 
 procedure TLiveBindingDesignerForm.btnSetTargetClick(Sender: TObject);
 var
-  Node: TTreeNode;
+  Node, ChildNode: TTreeNode;
+  Comp: TComponent;
   P: Integer;
+  DefProp, PropName: string;
 begin
   Node := tvComponents.Selected;
-  if (Node = nil) or (Node.Parent = nil) then
+  if Node = nil then
   begin
-    ShowMessage('Selecione uma propriedade na árvore para definir como Destino (Target).');
+    ShowMessage('Selecione um componente ou propriedade na árvore para definir como Destino (Target).');
     Exit;
   end;
 
-  FSelectedTargetComp := TComponent(Node.Data);
-  FSelectedTargetProp := Node.Text;
-  P := Pos(' (', FSelectedTargetProp);
-  if P > 0 then
-    FSelectedTargetProp := Copy(FSelectedTargetProp, 1, P - 1);
+  if Node.Parent <> nil then
+  begin
+    // It's a property node
+    FSelectedTargetComp := TComponent(Node.Data);
+    FSelectedTargetProp := Node.Text;
+    P := Pos(' (', FSelectedTargetProp);
+    if P > 0 then
+      FSelectedTargetProp := Copy(FSelectedTargetProp, 1, P - 1);
+  end
+  else
+  begin
+    // It's a component node: auto-detect its main property
+    Comp := TComponent(Node.Data);
+    if Comp = nil then Exit;
+    DefProp := GetDefaultPropertyForComp(Comp);
+    if DefProp = '' then
+    begin
+      Node.Expanded := True;
+      ShowMessage(Format('O componente "%s" não possui uma propriedade padrão óbvia. Por favor, expanda o nó e escolha a propriedade.', [Comp.Name]));
+      Exit;
+    end;
+    FSelectedTargetComp := Comp;
+    FSelectedTargetProp := DefProp;
+    Node.Expanded := True;
+
+    // Highlight child node matching DefProp if available
+    ChildNode := Node.GetFirstChild;
+    while ChildNode <> nil do
+    begin
+      PropName := ChildNode.Text;
+      P := Pos(' (', PropName);
+      if P > 0 then PropName := Copy(PropName, 1, P - 1);
+      if SameText(PropName, DefProp) then
+      begin
+        tvComponents.Selected := ChildNode;
+        Break;
+      end;
+      ChildNode := ChildNode.GetNextSibling;
+    end;
+  end;
 
   lblSelectedTarget.Caption := Format('Destino: %s.%s', [FSelectedTargetComp.Name, FSelectedTargetProp]);
+  sbStatus.Panels[1].Text := Format('Destino definido: %s.%s', [FSelectedTargetComp.Name, FSelectedTargetProp]);
+end;
+
+procedure TLiveBindingDesignerForm.tvComponentsDblClick(Sender: TObject);
+begin
+  if tvComponents.Selected = nil then
+    Exit;
+
+  if (FSelectedSourceComp = nil) or (FSelectedSourceProp = '') then
+    btnSetSourceClick(Sender)
+  else
+    btnSetTargetClick(Sender);
 end;
 
 procedure TLiveBindingDesignerForm.btnNewDirectClick(Sender: TObject);
@@ -484,15 +602,19 @@ var
   Mgr: TBindingManager;
   Link: TBindingLink;
 begin
+  // Auto-assign from current selection if not yet configured
+  if (FSelectedSourceComp = nil) and (tvComponents.Selected <> nil) then
+    btnSetSourceClick(Sender);
+
   if (FSelectedSourceComp = nil) or (FSelectedSourceProp = '') then
   begin
-    ShowMessage('Defina primeiro a Origem (Source) selecionando uma propriedade e clicando em "Definir Origem".');
+    ShowMessage('Defina primeiro a Origem (Source) selecionando um componente ou propriedade e clicando em "Definir Origem".');
     Exit;
   end;
 
   if (FSelectedTargetComp = nil) or (FSelectedTargetProp = '') then
   begin
-    ShowMessage('Defina primeiro o Destino (Target) selecionando uma propriedade e clicando em "Definir Destino".');
+    ShowMessage('Defina o Destino (Target) selecionando um componente ou propriedade e clicando em "Definir Destino".');
     Exit;
   end;
 
